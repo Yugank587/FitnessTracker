@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4169e1">
+  <title>Fitness Tracker</title>
+  <link rel="stylesheet" href="./style.css">
+
+  <!-- Load Supabase before the Fitness Tracker script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <section id="authSection" class="auth-page">
+    <div class="auth-card">
+      <div class="logo">💪</div>
+      <h1>Fitness Tracker</h1>
+      <p class="muted">Build healthier habits, one day at a time.</p>
+
+      <div class="auth-tabs">
+        <button type="button" id="loginTab" class="tab active">Login</button>
+        <button type="button" id="signupTab" class="tab">Create Account</button>
+      </div>
+
+      <form id="loginForm">
+        <h2>Welcome back!</h2>
+        <label for="loginEmail">Email address</label>
+        <input id="loginEmail" type="email" autocomplete="email" required>
+
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required>
+
+        <button class="primary full" type="submit">Login</button>
+        <p id="loginMessage" class="message" role="status" aria-live="polite"></p>
+        <p class="switch-text">New here?
+          <button type="button" id="showSignup" class="link-button">Create an account</button>
+        </p>
+      </form>
+
+      <form id="signupForm" hidden>
+        <h2>Create your account</h2>
+        <label for="signupName">Username</label>
+        <input id="signupName" type="text" minlength="3" autocomplete="name" required>
+
+        <label for="signupEmail">Email address</label>
+        <input id="signupEmail" type="email" autocomplete="email" required>
+
+        <label for="signupPassword">Password (at least 8 characters)</label>
+        <input id="signupPassword" type="password" minlength="8" autocomplete="new-password" required>
+
+        <label for="confirmPassword">Confirm password</label>
+        <input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" required>
+
+        <button class="primary full" type="submit">Sign Up</button>
+        <p id="signupMessage" class="message" role="status" aria-live="polite"></p>
+        <p class="switch-text">Already registered?
+          <button type="button" id="showLogin" class="link-button">Login</button>
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <main id="dashboardSection" class="app" hidden>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">💪</div>
+        <div>
+          <h1>Fitness Tracker</h1>
+          <p>Your personal wellness dashboard</p>
+        </div>
+      </div>
+      <div class="user-controls">
+        <span id="welcomeUser">Welcome!</span>
+        <button id="logoutButton" type="button" class="secondary">Logout</button>
+      </div>
+    </header>
+
+    <section class="welcome-panel">
+      <div>
+        <p class="eyebrow">YOUR DAILY WELLNESS</p>
+        <h2>Keep moving forward.</h2>
+        <p>Small steps today make a healthier tomorrow.</p>
+      </div>
+      <div class="today-chip">📅 <span id="todayLabel"></span></div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card blue">
+        <div class="stat-heading"><span>Steps</span><span>👟</span></div>
+        <p class="stat-number"><span id="stepsCount">0</span></p>
+        <p class="stat-caption">Daily movement</p>
+        <button id="addSteps" type="button" class="small-button">+100 steps</button>
+        <div class="manual-entry">
+          <label for="manualSteps">Enter steps manually</label>
+          <div class="inline-entry">
+            <input id="manualSteps" type="number" min="0" max="200000" step="1" placeholder="e.g. 5000">
+            <button id="saveSteps" type="button" class="small-button">Save</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="stat-card pink">
+        <div class="stat-heading"><span>Heart Rate</span><span>❤️</span></div>
+        <p class="stat-number"><span id="heartRate">—</span> <small>BPM</small></p>
+        <p class="stat-caption">Enter a measured value</p>
+        <div class="inline-entry">
+          <input id="heartRateInput" type="number" min="1" max="250" placeholder="BPM">
+          <button id="saveHeartRate" type="button" class="small-button">Save</button>
+        </div>
+      </article>
+
+      <article class="stat-card orange">
+        <div class="stat-heading"><span>Calories</span><span>🔥</span></div>
+        <p class="stat-number"><span id="caloriesCount">0</span> <small>kcal</small></p>
+        <p class="stat-caption">Estimate from steps and body weight, or enter calories manually.</p>
+        <label for="bodyWeight" class="compact-label">Body weight (kg)</label>
+        <div class="inline-entry">
+          <input id="bodyWeight" type="number" min="20" max="300" step="0.1" placeholder="e.g. 70">
+          <button id="saveWeight" type="button" class="small-button">Save weight</button>
+        </div>
+        <p id="calorieEstimateMessage" class="estimate-message" role="status">Save your weight to estimate calories from steps.</p>
+        <label for="caloriesInput" class="compact-label">Calories burned (kcal) — manual entry</label>
+        <div class="inline-entry">
+          <input id="caloriesInput" type="number" min="0" max="100000" step="1" placeholder="kcal">
+          <button id="saveCalories" type="button" class="small-button">Save</button>
+        </div>
+      </article>
+
+      <article class="stat-card cyan">
+        <div class="stat-heading"><span>Water Intake</span><span>💧</span></div>
+        <p class="stat-number"><span id="waterCount">0</span> <small>ml</small></p>
+        <p class="stat-caption">Stay hydrated throughout the day</p>
+        <button id="addWater" type="button" class="small-button">+250 ml</button>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">PERSONAL TARGETS</p>
+          <h2>My Daily Goals</h2>
+        </div>
+        <span class="pill">Customizable</span>
+      </div>
+      <div class="goal-grid">
+        <article class="goal-card">
+          <div class="goal-title"><span>👟 Steps</span><span id="stepsGoalPercent">0%</span></div>
+          <p><strong id="stepsGoalProgress">0 / 8000</strong> steps</p>
+          <progress id="stepsGoalBar" max="8000" value="0"></progress>
+          <label for="goalSteps">Daily step goal</label>
+          <input id="goalSteps" type="number" min="1" value="8000">
+        </article>
+        <article class="goal-card">
+          <div class="goal-title"><span>💧 Water</span><span id="waterGoalPercent">0%</span></div>
+          <p><strong id="waterGoalProgress">0 / 2000</strong> ml</p>
+          <progress id="waterGoalBar" max="2000" value="0"></progress>
+          <label for="goalWater">Daily water goal (ml)</label>
+          <input id="goalWater" type="number" min="1" value="2000">
+        </article>
+        <article class="goal-card">
+          <div class="goal-title"><span>🔥 Calories</span><span id="caloriesGoalPercent">0%</span></div>
+          <p><strong id="caloriesGoalProgress">0 / 500</strong> kcal</p>
+          <progress id="caloriesGoalBar" max="500" value="0"></progress>
+          <label for="goalCalories">Daily calorie goal</label>
+          <input id="goalCalories" type="number" min="1" value="500">
+        </article>
+      </div>
+      <div class="button-row">
+        <button id="saveFitnessGoals" type="button" class="primary">Save Goals</button>
+        <span id="goalsMessage" class="message" role="status"></span>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel">
+        <div class="section-heading">
+          <div><p class="eyebrow">MOVE MORE</p><h2>Workout Timer</h2></div>
+          <span>⏱️</span>
+        </div>
+        <label for="workoutType">Activity</label>
+        <select id="workoutType">
+          <option>Walking</option><option>Running</option><option>Cycling</option>
+          <option>Strength training</option><option>Stretching</option><option>Other</option>
+        </select>
+        <div id="workoutClock" class="timer">00:00:00</div>
+        <div class="button-row">
+          <button id="startWorkout" type="button" class="primary">Start Workout</button>
+          <button id="stopWorkout" type="button" class="secondary" disabled>Finish</button>
+        </div>
+        <p id="workoutMessage" class="message" role="status"></p>
+      </article>
+
+      <article class="panel">
+        <div class="section-heading">
+          <div><p class="eyebrow">BUILD CONSISTENCY</p><h2>Daily Checklist</h2></div>
+          <span>✅</span>
+        </div>
+        <div class="activity-list">
+          <label><input type="checkbox" class="daily-activity" value="Morning walk"> Morning walk</label>
+          <label><input type="checkbox" class="daily-activity" value="Stretching"> Stretching</label>
+          <label><input type="checkbox" class="daily-activity" value="Workout"> Workout</label>
+          <label><input type="checkbox" class="daily-activity" value="Drink enough water"> Drink enough water</label>
+          <label><input type="checkbox" class="daily-activity" value="Cool-down"> Cool-down</label>
+        </div>
+        <p id="activityProgress" class="message" role="status">0 of 5 activities completed</p>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div><p class="eyebrow">YOUR EXERCISE LOG</p><h2>Workout History</h2></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Activity</th><th>Duration</th></tr></thead>
+          <tbody id="workoutHistory"><tr><td colspan="3">No workouts recorded yet.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div><p class="eyebrow">DAILY RECORDS</p><h2>Fitness History</h2></div>
+      </div>
+      <div class="history-controls">
+        <div><label for="historyDate">Record date</label><input id="historyDate" type="date"></div>
+        <button id="saveRecord" type="button" class="primary">Save Daily Record</button>
+      </div>
+      <p id="historyMessage" class="message" role="status"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Steps</th><th>Calories</th><th>Water (ml)</th><th>Heart Rate</th></tr></thead>
+          <tbody id="historyTable"><tr><td colspan="5">No records available.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel analytics-panel">
+      <div class="section-heading analytics-heading">
+        <div>
+          <p class="eyebrow">YOUR ACTIVITY AT A GLANCE</p>
+          <h2>Fitness Analytics</h2>
+          <p class="analytics-subtitle">Review your recorded activity and spot your progress over time.</p>
+        </div>
+        <div class="range-control">
+          <label for="chartRange">Chart period</label>
+          <select id="chartRange">
+            <option value="7">Last 7 days</option>
+            <option value="14">Last 14 days</option>
+            <option value="30">Last 30 days</option>
+          </select>
+        </div>
+      </div>
+      <div class="analytics-grid" aria-live="polite">
+        <article class="analytics-card analytics-blue"><span class="analytics-icon">👟</span><p>Total steps</p><strong id="analyticsTotalSteps">0</strong><small>During selected period</small></article>
+        <article class="analytics-card analytics-purple"><span class="analytics-icon">📊</span><p>Daily step average</p><strong id="analyticsAverageSteps">0</strong><small>Steps per day</small></article>
+        <article class="analytics-card analytics-orange"><span class="analytics-icon">🔥</span><p>Total calories</p><strong id="analyticsTotalCalories">0</strong><small>kcal recorded</small></article>
+        <article class="analytics-card analytics-cyan"><span class="analytics-icon">💧</span><p>Average water</p><strong id="analyticsAverageWater">0 ml</strong><small>Per day</small></article>
+      </div>
+      <p id="analyticsInsight" class="analytics-insight" role="status">Record your daily activity to see insights here.</p>
+      <div class="charts-grid">
+        <article class="chart-card"><h3>Steps</h3><p class="chart-description">Daily steps over time</p><canvas id="stepsChart" height="180"></canvas></article>
+        <article class="chart-card"><h3>Calories</h3><p class="chart-description">Daily calories burned</p><canvas id="caloriesChart" height="180"></canvas></article>
+        <article class="chart-card"><h3>Water Intake</h3><p class="chart-description">Daily water consumption</p><canvas id="waterChart" height="180"></canvas></article>
+        <article class="chart-card"><h3>Heart Rate</h3><p class="chart-description">Recorded heart rate (BPM)</p><canvas id="heartRateChart" height="180"></canvas></article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Fitness Tracker · Stay active, stay consistent.
+      <p>Values entered manually are estimates, not medical measurements.</p>
+    </footer>
+  </main>
+</body>
+</html>
